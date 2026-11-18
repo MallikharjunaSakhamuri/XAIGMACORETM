@@ -11,6 +11,10 @@ Every table and figure reported in the paper. All files are produced by the scri
 | `generator_gates/` | `generator_gate_profile.csv` | Figure 10 |
 | `figures/` | `figure9_slope_<dataset>` and `figure9_amplification_<dataset>`, PNG and PDF | Figure 9 |
 | `leakage/` | `leakage_summary.csv`, `leakage_similarity_distribution.csv`, `settings.json` | Leakage analysis |
+| `figures_shap/` | `figure2_motif_attribution_*`, `figure4_novelty_*`, `attribution_long.csv` | Figures 2 and 4 |
+| `figures_counterfactual/` | `figure3_ablation_*`, `figure3_summary_*`, `counterfactual_ablations.csv`, `counterfactual_concordance.csv` | Figure 3 |
+| `figures_local/` | `figure6a_atom_map_*`, `figure6b_atom_ranking_*`, `figure6c_waterfall_*`, `figure6d_lime_*`, plus the two CSVs | Figure 6 |
+| `figures_fairness/` | `figure7a_*`, `figure7b_*`, `figure8a_radar_*`, `figure8b_gaps_*`, plus three CSVs | Figures 7 and 8 |
 | `predictions/` | `performance_gate.csv`, `manifest.json` | Predictive performance, context only |
 
 Per-molecule prediction CSVs are not committed. They are large, they are reproducible from stage 2, and `performance_gate.csv` carries the summary that the paper cites.

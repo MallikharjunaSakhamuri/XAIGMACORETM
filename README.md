@@ -52,8 +52,28 @@ python scripts/run_07_leakage.py       --data-root <DATA> --corpus <DATA>/pubche
 | 5 | `run_05_gates.py` | Figure 10: generator feature-gate profile per motif | Yes |
 | 6 | `run_06_figures.py` | Figure 9: label gap against each model's predicted gap, and amplification | No |
 | 7 | `run_07_leakage.py` | Pretraining corpus against held-out benchmark overlap | No |
+| 8 | `run_08_shap_figures.py` | Figure 2: motif attribution beeswarms and mean absolute impact. Figure 4: novelty-conditioned explanations | Yes |
+| 9 | `run_09_counterfactual.py` | Figure 3: counterfactual motif ablations, with the per-example triptychs | Yes |
+| 10 | `run_10_local_explanations.py` | Figure 6: atom contribution map, atom ranking, waterfall, LIME at one atom | Yes |
+| 11 | `run_11_fairness_diagnostics.py` | Figure 7: regression group fairness. Figure 8: classification radar and parity gaps | No |
 
-Stage 4 is the only expensive one. Stages 1b and 7 stream the pretraining corpus and take minutes.
+Stages 4, 8, 9 and 10 run KernelSHAP and are the expensive ones. Stage 11 reads
+the stage 2 prediction CSVs, so it needs no checkpoint and no GPU. Stages 1b and
+7 stream the pretraining corpus and take minutes.
+
+### Which script draws which figure
+
+| Figure in the paper | Script |
+| --- | --- |
+| Figure 2, motif-level attribution | `run_08_shap_figures.py` |
+| Figure 3, counterfactual ablations | `run_09_counterfactual.py` |
+| Figure 4, similarity-conditioned explanations | `run_08_shap_figures.py` |
+| Figure 5, functional-group fairness | `run_03_bias.py`, drawn by `run_06_figures.py` |
+| Figure 6, node- and feature-level explanations | `run_10_local_explanations.py` |
+| Figure 7, regression group fairness | `run_11_fairness_diagnostics.py` |
+| Figure 8, classification subgroup fairness | `run_11_fairness_diagnostics.py` |
+| Figure 9, inherited, amplified and reduced disparity | `run_06_figures.py` |
+| Figure 10, generator feature-gate behaviour | `run_05_gates.py` |
 
 ## Methodological notes
 
@@ -66,6 +86,10 @@ These are deliberate choices that differ from a naive implementation, and they a
 **Underpowered groups.** Groups whose smaller arm falls below 20 molecules are computed, flagged with `underpowered = True`, and excluded from the hypothesis-test family. They are reported but not interpreted.
 
 **Amplification.** Defined as `abs(model gap) - abs(label gap)`. Signed gaps are retained separately, because a sign flip is not the same finding as a magnitude increase.
+
+**Counterfactual ablation is structural.** Figure 3 removes a motif's atoms from the molecular graph with RDKit and re-sanitises the result, so the ablated molecule is a real molecule and RDKit fills the open valence with implicit hydrogens. It is not a masking of node features. Edits that fail sanitisation are recorded as invalid rather than dropped, because a motif that cannot be removed without breaking the molecule is itself a finding.
+
+**DALEX is used where the paper says it is.** The regression independence, separation and sufficiency scores in Figure 7 are DALEX constructs and are computed with the `dalex` package. The classification metrics in Figure 8 are elementary confusion-matrix quantities and are implemented directly in `xai_audit/fairness_diagnostics.py`, so every number in that figure traces to a formula in this repository.
 
 **Scope of the model contrast.** ManualAug-CL differs from GMACORE-TM in the momentum encoder and age-weighted negative sampling as well as the augmentation operator. Contrast columns are labelled `amplified_under_gmacore_tm` and `reduced_under_gmacore_tm` rather than attributed to the generator, because the comparison supports claims about the complete training pipeline and not a causal estimate for the generative component alone.
 

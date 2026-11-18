@@ -78,9 +78,46 @@ python scripts/run_07_leakage.py --data-root <DATA> --corpus <DATA>/pubchem-10m-
 python scripts/run_04_attribution.py --data-root <DATA> --runs-root <RUNS> --output-dir results/table_b_attribution --n-molecules 150
 ```
 
+Then the figure stages:
+
+```bash
+# Figures 2 and 4, GPU, KernelSHAP over every dataset and both models
+python scripts/run_08_shap_figures.py --data-root <DATA> --runs-root <RUNS> --output-dir results/figures_shap --n-molecules 150
+
+# Figure 3, GPU. The paper shows BACE and ESOL
+python scripts/run_09_counterfactual.py --data-root <DATA> --runs-root <RUNS> --output-dir results/figures_counterfactual --datasets bace esol
+
+# Figure 6, GPU, one molecule. Pass --smiles to pick the molecule explicitly
+python scripts/run_10_local_explanations.py --data-root <DATA> --runs-root <RUNS> --output-dir results/figures_local --dataset bace
+
+# Figures 7 and 8, seconds, no checkpoint, reads the stage 2 CSVs
+python scripts/run_11_fairness_diagnostics.py --predictions results/predictions --output-dir results/figures_fairness
+```
+
+Stage 8 runs KernelSHAP once per molecule per dataset per model, so it is the
+longest of the figure stages. Reduce `--n-molecules` for a first pass.
+
+Stage 9 needs attributions before it can rank motifs, so it runs KernelSHAP too.
+`--top-k` defaults to 3, matching Appendix Table A.4.
+
+Stage 10 picks the molecule with the largest absolute prediction unless you pass
+`--smiles`. Pass the SMILES explicitly to regenerate the exact molecule shown in
+the paper. `--atom` selects the atom for the LIME panel; the default is the atom
+with the largest absolute contribution.
+
+Stage 11 is the one to run first when checking that everything is wired up: it
+needs no GPU and no checkpoint.
+
 Stage 4 fine-tunes eight probes and then runs KernelSHAP on each, so run it once the other stages confirm the paths resolve.
 
 ## 5. What to expect
+
+Stage 8 skips Figure 4 for a dataset and model when fewer than three molecules
+fall in either novelty arm, which happens if `--n-molecules` is small; it says so
+rather than drawing an empty panel. Stage 9 reports how many ablations produced a
+valid molecule, and the Spearman correlation between absolute attribution and
+absolute delta. Stage 10 and stage 11 skip the LIME and DALEX panels with a
+message if `lime` or `dalex` is not installed.
 
 Stage 3 prints the family size, the number of underpowered groups excluded, the count significant after Benjamini-Hochberg correction, and the direction of change for every group. Stage 4 prints the probe's validation score before each KernelSHAP run; the ESOL and QM9 probes do not exceed a mean predictor on the validation scaffold fold, which is stated in the paper and is not a configuration error.
 
