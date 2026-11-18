@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "Explainable Analysis of Synthetic-Data Bias in Molecular Graph Prediction for Immunology"
+authors:
+  - family-names: "Sakhamuri"
+    given-names: "Mallikharjuna"
+    affiliation: "Atlantic Technological University, Donegal, Ireland"
+repository-code: "https://github.com/MallikharjunaSakhamuri/XAIGMACORETM"
+license: MIT
+# Fill these in once the paper is accepted.
+# journal: "Neurocomputing"
+# year: 2026
+# doi: ""
